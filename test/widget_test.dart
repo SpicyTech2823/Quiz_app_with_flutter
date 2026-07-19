@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:quiz_app/main.dart';
+import 'package:quiz_app/screens/home.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('tapping a category shows its questions', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: Home()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.tap(find.text('Science'));
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    expect(find.text('What is the chemical symbol for water?'), findsOneWidget);
+    expect(
+      find.text('Who was the first President of the United States?'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('selecting an answer shows feedback and finishes the quiz', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: Home()));
+
+    await tester.tap(find.text('Science'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('1. H2O'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Correct!'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Quiz Result'), findsOneWidget);
+  });
+
+  testWidgets('search filters the category list', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(home: Home()));
+
+    await tester.enterText(find.byType(TextField), 'his');
+    await tester.pump();
+
+    expect(find.text('History'), findsOneWidget);
+    expect(find.text('Science'), findsNothing);
   });
 }
