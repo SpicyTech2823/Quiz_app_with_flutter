@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:quiz_app/utils/color.dart';
 import 'package:quiz_app/screens/home.dart';
 
+import 'login.dart';
+
 class Onboard extends StatefulWidget {
   const Onboard({super.key});
 
@@ -43,7 +45,7 @@ class _OnboardState extends State<Onboard> {
                 // Navigate to the next screen
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Home()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
               style: ElevatedButton.styleFrom(

@@ -4,13 +4,15 @@ import 'package:quiz_app/utils/color.dart';
 import '../data/quiz_data.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
-
+  const Home(this.username, {super.key});
+  final String username;
+  const Home.withoutUsername({super.key}) : username = 'User';
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  // search controller for the search bar
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
 
@@ -29,7 +31,7 @@ class _HomeState extends State<Home> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: MyColors.secondaryColor,
+      backgroundColor: MyColors.backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: MyColors.secondaryColor,
@@ -37,26 +39,20 @@ class _HomeState extends State<Home> {
         titleSpacing: 16,
         title: Row(
           children: [
-            // User avatar image
-            const CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey,
-              child: Icon(Icons.person, color: Colors.white),
-            ),
             const SizedBox(width: 12),
             // Greeting + name
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     'Welcome back,',
                     style: TextStyle(color: Colors.white54, fontSize: 12),
                   ),
                   Text(
-                    'John',
-                    style: TextStyle(
+                    widget.username,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -91,7 +87,7 @@ class _HomeState extends State<Home> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: MyColors.secondaryColor,
               ),
             ),
           ),
@@ -100,8 +96,8 @@ class _HomeState extends State<Home> {
             child: TextField(
               controller: _searchController,
               textInputAction: TextInputAction.search,
-              style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
+              style: const TextStyle(color: Colors.black54),
+              cursorColor: Colors.black54,
               onChanged: (value) {
                 setState(() {
                   _searchText = value;
@@ -109,17 +105,19 @@ class _HomeState extends State<Home> {
               },
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.12),
+                fillColor: Colors.white.withValues(alpha: 0.12),
                 hintText: 'Search',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                hintStyle: TextStyle(
+                  color: Colors.black54.withValues(alpha: 0.6),
+                ),
+                prefixIcon: const Icon(Icons.search, color: Colors.black54),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(color: Colors.white70),
+                  borderSide: const BorderSide(color: Colors.black54),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(color: Colors.white),
+                  borderSide: const BorderSide(color: Colors.black54),
                 ),
               ),
             ),
