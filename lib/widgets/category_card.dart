@@ -18,6 +18,13 @@ class Category extends StatelessWidget {
     Colors.cyan,
   ];
 
+  Color _getCategoryColor(int index, category_model.Category category) {
+    if (category.color != null) {
+      return category.color!;
+    }
+    return _colors[index % _colors.length];
+  }
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -45,17 +52,35 @@ class Category extends StatelessWidget {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: _colors[index % _colors.length],
+              color: _getCategoryColor(index, category),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
-              child: Text(
-                category.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (category.icon != null)
+                    Expanded(
+                      child: Icon(
+                        category.icon,
+                        size: 64,
+                        color: Colors.white,
+                      ),
+                    )
+                  else
+                    const Icon(Icons.quiz, size: 48, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Text(
+                    category.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

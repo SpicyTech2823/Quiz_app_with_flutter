@@ -1,9 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
+  AuthService({this.requestExecutor});
+
+  final Future<http.Response> Function(
+    Uri uri, {
+    Map<String, String>? headers,
+    Object? body,
+  })?
+  requestExecutor;
+
   String get baseUrl {
     if (kIsWeb) {
       return 'http://localhost:5000/api/auth';
@@ -15,13 +25,31 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email.trim(), 'password': password}),
-    );
+    try {
+      final response = await _post(
+        Uri.parse('$baseUrl/login'),
+        body: {'email': email.trim(), 'password': password},
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+        throw SocketException('Request timed out');
+      });
 
-    return _handleResponse(response);
+      return _handleResponse(response);
+    } on SocketException catch (_) {
+      return {
+        'success': false,
+        'message': 'Unable to connect to the server. Please try again.',
+      };
+    } on HttpException catch (_) {
+      return {
+        'success': false,
+        'message': 'Unable to connect to the server. Please try again.',
+      };
+    } catch (_) {
+      return {
+        'success': false,
+        'message': 'Something went wrong. Please try again.',
+      };
+    }
   }
 
   Future<Map<String, dynamic>> register({
@@ -29,17 +57,49 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/register'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username.trim(),
-        'email': email.trim(),
-        'password': password,
-      }),
-    );
+    try {
+      final response = await _post(
+        Uri.parse('$baseUrl/register'),
+        body: {
+          'username': username.trim(),
+          'email': email.trim(),
+          'password': password,
+        },
+      );
 
-    return _handleResponse(response);
+      return _handleResponse(response);
+    } on SocketException catch (_) {
+      return {
+        'success': false,
+        'message': 'Unable to connect to the server. Please try again.',
+      };
+    } on HttpException catch (_) {
+      return {
+        'success': false,
+        'message': 'Unable to connect to the server. Please try again.',
+      };
+    } catch (_) {
+      return {
+        'success': false,
+        'message': 'Something went wrong. Please try again.',
+      };
+    }
+  }
+
+  Future<http.Response> _post(Uri uri, {required Map<String, dynamic> body}) {
+    if (requestExecutor != null) {
+      return requestExecutor!(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+    }
+
+    return http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {

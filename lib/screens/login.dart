@@ -45,7 +45,11 @@ class _LoginState extends State<LoginScreen> {
       _showMessage('Login successful');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => Home(result['data']['user']['username'] ?? 'User')),
+        MaterialPageRoute(
+          builder: (_) => MainScreen(
+            username: result['data']['user']['username'] ?? 'User',
+          ),
+        ),
       );
     } else {
       _showMessage(result['message'] ?? 'Login failed');

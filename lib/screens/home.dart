@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/screens/archive.dart';
+import 'package:quiz_app/screens/profile.dart';
 import 'package:quiz_app/widgets/category_card.dart';
 import 'package:quiz_app/utils/color.dart';
 import '../data/quiz_data.dart';
@@ -37,6 +39,11 @@ class _HomeState extends State<Home> {
         backgroundColor: MyColors.secondaryColor,
         elevation: 0,
         titleSpacing: 16,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
         title: Row(
           children: [
             const SizedBox(width: 12),
@@ -47,15 +54,15 @@ class _HomeState extends State<Home> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'Welcome back,',
-                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                    'Welcome back',
+                    style: TextStyle(color: Colors.white54, fontSize: 16),
                   ),
                   Text(
                     widget.username,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 23,
                     ),
                   ),
                 ],
@@ -85,7 +92,7 @@ class _HomeState extends State<Home> {
             child: Text(
               'Explore Categories',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 23,
                 fontWeight: FontWeight.bold,
                 color: MyColors.secondaryColor,
               ),
@@ -121,6 +128,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
+            
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -132,6 +140,55 @@ class _HomeState extends State<Home> {
                     ),
                   )
                 : Category(categories: filteredCategories),
+          ),
+        ],
+      ),
+    );
+  }
+}
+class MainScreen extends StatefulWidget {
+  final String username;
+  const MainScreen({super.key, this.username = 'User'});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      Home(widget.username),
+      const Archive(),
+      const Profile(),
+    ];
+
+    return Scaffold(
+      body: screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        // Set the color of the selected item
+        selectedItemColor: MyColors.secondaryColor,
+        
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.archive),
+            label: 'Archive',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

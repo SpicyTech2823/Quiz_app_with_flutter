@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/utils/color.dart';
 
 class ResultScreen extends StatelessWidget {
   final int score;
@@ -16,8 +17,15 @@ class ResultScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz Result'),
-        backgroundColor: Colors.deepPurple,
+        title: const Text('Quiz Result', style: TextStyle(color: Colors.white)),
+        backgroundColor: MyColors.secondaryColor,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Center(
         child: Column(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../data/quiz_data.dart';
+import '../models/category.dart';
 import '../models/quiz_question.dart';
 import 'result_screen.dart';
+import '../utils/color.dart';
 
 class QuizScreen extends StatefulWidget {
   final String categoryId;
@@ -24,7 +26,7 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _isAnswered = false;
   int? _selectedAnswerIndex;
   int? _correctAnswerIndex;
-
+  // This method is called when the widget is first created. It initializes the list of questions based on the selected category.
   @override
   void initState() {
     super.initState();
@@ -82,11 +84,18 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedCategory = categories.firstWhere(
+      (category) => category.id == widget.categoryId,
+      orElse: () => Category(id: widget.categoryId, name: widget.categoryName, ),
+    );
+
+    final appBarColor = selectedCategory.color ?? MyColors.secondaryColor;
+
     if (_questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: Text(widget.categoryName),
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: appBarColor,
         ),
         body: Center(
           child: Text(
@@ -102,8 +111,15 @@ class _QuizScreenState extends State<QuizScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(widget.categoryName),
-        backgroundColor: Colors.deepPurple,
+        title: Text(widget.categoryName, style: const TextStyle(color: Colors.white)),
+        backgroundColor: appBarColor,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

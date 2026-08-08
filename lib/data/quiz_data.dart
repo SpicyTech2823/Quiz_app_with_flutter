@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' hide Category;
+import 'package:flutter/material.dart' hide Category;
 import '../models/quiz_question.dart';
 import '../models/category.dart';
 
@@ -7,17 +7,17 @@ final List<Category> categories = [
     Category(
       id: 'science',
       name: 'Science',
-      image: 'assets/images/science.png',
+      icon: Icons.science_outlined,
     ),
     Category(
       id: 'history',
       name: 'History',
-      image: 'assets/images/history.png',
+      icon: Icons.account_balance_outlined,
     ),
     Category(
       id: 'geography',
       name: 'Geography',
-      image: 'assets/images/geography.png',
+      icon: Icons.public_outlined,
     ),
 ];
 List<Question> questions = [
