@@ -43,12 +43,23 @@ class _LoginState extends State<LoginScreen> {
 
     if (result['success'] == true) {
       _showMessage('Login successful');
+      // persist auth token and username for future sessions
+      final token = result['data']?['token'] as String?;
+      final user = result['data']?['user'] as Map<String, dynamic>?;
+      final username =
+          user?['username'] as String? ??
+          user?['name'] as String? ??
+          user?['email'] as String?;
+      if (token != null) {
+        await AuthService.saveAuthToken(token);
+      }
+      if (username != null) {
+        await AuthService.saveUsername(username);
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => MainScreen(
-            username: result['data']['user']['username'] ?? 'User',
-          ),
+          builder: (_) => MainScreen(username: username ?? 'User'),
         ),
       );
     } else {

@@ -26,6 +26,13 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _isAnswered = false;
   int? _selectedAnswerIndex;
   int? _correctAnswerIndex;
+  Future<void> _loadQuestions() async {
+    // Load questions based on the selected category
+    _questions = questions
+        .where((question) => question.categoryId == widget.categoryId)
+        .toList();
+  }
+
   // This method is called when the widget is first created. It initializes the list of questions based on the selected category.
   @override
   void initState() {
@@ -39,8 +46,11 @@ class _QuizScreenState extends State<QuizScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ResultScreen(score: _score, totalQuestions: _questions.length),
+        builder: (context) => ResultScreen(
+          score: _score,
+          totalQuestions: _questions.length,
+          quizName: widget.categoryName,
+        ),
       ),
     );
   }
@@ -86,7 +96,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     final selectedCategory = categories.firstWhere(
       (category) => category.id == widget.categoryId,
-      orElse: () => Category(id: widget.categoryId, name: widget.categoryName, ),
+      orElse: () => Category(id: widget.categoryId, name: widget.categoryName),
     );
 
     final appBarColor = selectedCategory.color ?? MyColors.secondaryColor;
@@ -111,7 +121,10 @@ class _QuizScreenState extends State<QuizScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(widget.categoryName, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          widget.categoryName,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
         leading: IconButton(

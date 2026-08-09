@@ -3,8 +3,49 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  // key used to store the authentication token in shared preferences
+  static const String _authTokenKey = 'auth_token';
+  static const String _usernameKey = 'username';
+  // save token after successful login or registration
+  static Future<void> saveAuthToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_authTokenKey, token);
+  }
+
+  // save username for display in the app
+  static Future<void> saveUsername(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_usernameKey, username);
+  }
+
+  // retrieve token for authenticated requests
+  static Future<String?> getAuthToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_authTokenKey);
+  }
+
+  // Check whether the user is logged in.
+  static Future<bool> isLoggedIn() async {
+    final token = await getAuthToken();
+    return token != null;
+  }
+
+  // remove token on logout
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_authTokenKey);
+    await prefs.remove(_usernameKey);
+  }
+
+  // get saved username
+  static Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_usernameKey);
+  }
+
   AuthService({this.requestExecutor});
 
   final Future<http.Response> Function(
@@ -26,12 +67,16 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await _post(
-        Uri.parse('$baseUrl/login'),
-        body: {'email': email.trim(), 'password': password},
-      ).timeout(const Duration(seconds: 10), onTimeout: () {
-        throw SocketException('Request timed out');
-      });
+      final response =
+          await _post(
+            Uri.parse('$baseUrl/login'),
+            body: {'email': email.trim(), 'password': password},
+          ).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw SocketException('Request timed out');
+            },
+          );
 
       return _handleResponse(response);
     } on SocketException catch (_) {
