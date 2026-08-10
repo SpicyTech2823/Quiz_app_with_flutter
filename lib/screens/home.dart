@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quiz_app/screens/archive.dart';
+import 'package:quiz_app/screens/achievement.dart';
 import 'package:quiz_app/screens/profile.dart';
 import 'package:quiz_app/widgets/category_card.dart';
 import 'package:quiz_app/utils/color.dart';
@@ -161,8 +161,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       Home(widget.username),
-      const Archive(),
-      const Profile(),
+      const AchievementScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
@@ -183,8 +183,8 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.archive),
-            label: 'Archive',
+            icon: Icon(Icons.emoji_events),
+            label: 'Achievements',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

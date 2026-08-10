@@ -101,7 +101,7 @@ router.post("/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    const username = user.username || user.name || user.email;
+    const username = user.username || user.name || "User";
 
     res.status(200).json({
       token,

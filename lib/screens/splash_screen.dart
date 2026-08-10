@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkLoginStatus() async {
     final isLoggedIn = await AuthService.isLoggedIn();
-    if (isLoggedIn) {
+    if (isLoggedIn){
       // try to read stored username and navigate passing it to MainScreen
       final username = await AuthService.getUsername();
       if (username != null) {
@@ -32,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }
+
   }
 
   @override

@@ -4,14 +4,14 @@ import 'package:quiz_app/utils/color.dart';
 import '../models/quiz_result.dart';
 import '../services/quiz_storage.dart';
 
-class Archive extends StatefulWidget {
-  const Archive({super.key});
+class AchievementScreen extends StatefulWidget {
+  const AchievementScreen({super.key});
 
   @override
-  State<Archive> createState() => _ArchiveState();
+  State<AchievementScreen> createState() => _AchievementScreenState();
 }
 
-class _ArchiveState extends State<Archive> {
+class _AchievementScreenState extends State<AchievementScreen> {
   // store all quiz results in a list
   List<QuizResult> _quizResults = [];
   bool _isLoading = true;
@@ -43,7 +43,7 @@ class _ArchiveState extends State<Archive> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Archive', style: TextStyle(color: Colors.white)),
+        title: const Text('Achievements', style: TextStyle(color: Colors.white)),
         backgroundColor: MyColors.secondaryColor,
         automaticallyImplyLeading: false,
         leading: IconButton(

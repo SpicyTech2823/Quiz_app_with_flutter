@@ -46,15 +46,16 @@ class _LoginState extends State<LoginScreen> {
       // persist auth token and username for future sessions
       final token = result['data']?['token'] as String?;
       final user = result['data']?['user'] as Map<String, dynamic>?;
-      final username =
-          user?['username'] as String? ??
-          user?['name'] as String? ??
-          user?['email'] as String?;
+      final username = user?['username'] as String? ?? user?['name'] as String?;
+      final email = user?['email'] as String? ?? _emailController.text.trim();
       if (token != null) {
         await AuthService.saveAuthToken(token);
       }
-      if (username != null) {
+      if (username != null && username.isNotEmpty) {
         await AuthService.saveUsername(username);
+      }
+      if (email.isNotEmpty) {
+        await AuthService.saveEmail(email);
       }
       Navigator.pushReplacement(
         context,

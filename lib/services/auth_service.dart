@@ -9,6 +9,8 @@ class AuthService {
   // key used to store the authentication token in shared preferences
   static const String _authTokenKey = 'auth_token';
   static const String _usernameKey = 'username';
+  static const String _emailKey = 'email';
+
   // save token after successful login or registration
   static Future<void> saveAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -19,6 +21,12 @@ class AuthService {
   static Future<void> saveUsername(String username) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_usernameKey, username);
+  }
+
+  // save email for display in the app
+  static Future<void> saveEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_emailKey, email);
   }
 
   // retrieve token for authenticated requests
@@ -38,12 +46,19 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_authTokenKey);
     await prefs.remove(_usernameKey);
+    await prefs.remove(_emailKey);
   }
 
   // get saved username
   static Future<String?> getUsername() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_usernameKey);
+  }
+
+  // get saved email
+  static Future<String?> getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_emailKey);
   }
 
   AuthService({this.requestExecutor});
