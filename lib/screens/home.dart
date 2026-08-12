@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/screens/achievement.dart';
 import 'package:quiz_app/screens/profile.dart';
+import 'package:quiz_app/services/auth_service.dart';
 import 'package:quiz_app/widgets/category_card.dart';
 import 'package:quiz_app/utils/color.dart';
 import '../data/quiz_data.dart';
 
 class Home extends StatefulWidget {
-  const Home(this.username, {super.key});
-  final String username;
-  const Home.withoutUsername({super.key}) : username = 'User';
+  const Home({super.key});
+
   @override
   State<Home> createState() => _HomeState();
 }
@@ -17,11 +17,24 @@ class _HomeState extends State<Home> {
   // search controller for the search bar
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
+  Future<String?>? _usernameFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameFuture = AuthService.getUsername();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void refreshUsername() {
+    setState(() {
+      _usernameFuture = AuthService.getUsername();
+    });
   }
 
   @override
@@ -57,13 +70,19 @@ class _HomeState extends State<Home> {
                     'Welcome back',
                     style: TextStyle(color: Colors.white54, fontSize: 16),
                   ),
-                  Text(
-                    widget.username,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 23,
-                    ),
+                  FutureBuilder<String?>(
+                    future: _usernameFuture,
+                    builder: (context, snapshot) {
+                      final username = snapshot.data;
+                      return Text(
+                        username?.isNotEmpty == true ? username! : 'User',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 23,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -128,7 +147,6 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
-            
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -146,6 +164,7 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
 class MainScreen extends StatefulWidget {
   final String username;
   const MainScreen({super.key, this.username = 'User'});
@@ -156,13 +175,21 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  final GlobalKey<_HomeState> _homeKey = GlobalKey<_HomeState>();
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      Home(widget.username),
+      Home(key: _homeKey),
       const AchievementScreen(),
-      const ProfileScreen(),
+      ProfileScreen(
+        onProfileUpdated: () {
+          _homeKey.currentState?.refreshUsername();
+          setState(() {
+            _currentIndex = 0;
+          });
+        },
+      ),
     ];
 
     return Scaffold(
@@ -176,20 +203,14 @@ class _MainScreenState extends State<MainScreen> {
         },
         // Set the color of the selected item
         selectedItemColor: MyColors.secondaryColor,
-        
+
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events),
             label: 'Achievements',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

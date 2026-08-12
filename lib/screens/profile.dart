@@ -3,8 +3,11 @@ import 'package:quiz_app/screens/achievement.dart';
 import 'package:quiz_app/screens/edit_profile.dart';
 import 'package:quiz_app/screens/policy.dart';
 import 'package:quiz_app/services/auth_service.dart';
+
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onProfileUpdated;
+
+  const ProfileScreen({super.key, this.onProfileUpdated});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -35,8 +38,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile', style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
         centerTitle: true,
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
@@ -52,13 +56,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _ProfileMenuItem(
                   icon: Icons.person_outline,
                   label: 'Edit Profile',
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final updated = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const EditProfileScreen(),
                       ),
                     );
+
+                    if (updated == true) {
+                      await _loadProfile();
+                      widget.onProfileUpdated?.call();
+                    }
                   },
                 ),
                 _ProfileMenuItem(

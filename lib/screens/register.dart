@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/screens/login.dart';
 import 'package:quiz_app/services/auth_service.dart';
+import '../utils/color.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -72,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const Text(
                 'Create Account',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: MyColors.secondaryColor),
               ),
               const SizedBox(height: 24),
               TextField(
@@ -97,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _register,
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(color: MyColors.secondaryColor)
                       : const Text('Register'),
                 ),
               ),
@@ -109,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
                   );
                 },
-                child: const Text('Already have an account? Login'),
+                child: const Text('Already have an account? Login', style: TextStyle(color: MyColors.secondaryColor)),
               ),
             ],
           ),

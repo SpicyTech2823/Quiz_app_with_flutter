@@ -10,6 +10,9 @@ class AuthService {
   static const String _authTokenKey = 'auth_token';
   static const String _usernameKey = 'username';
   static const String _emailKey = 'email';
+  static const String _phoneKey = 'phone';
+  static const String _bioKey = 'bio';
+  static const String _profileImageKey = 'profile_image_path';
 
   // save token after successful login or registration
   static Future<void> saveAuthToken(String token) async {
@@ -27,6 +30,26 @@ class AuthService {
   static Future<void> saveEmail(String email) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_emailKey, email);
+  }
+
+  static Future<void> savePhone(String phone) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_phoneKey, phone);
+  }
+
+  static Future<void> saveBio(String bio) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_bioKey, bio);
+  }
+
+  static Future<void> saveProfileImagePath(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_profileImageKey, path);
+  }
+
+  static Future<String?> getProfileImagePath() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_profileImageKey);
   }
 
   // retrieve token for authenticated requests
@@ -47,6 +70,8 @@ class AuthService {
     await prefs.remove(_authTokenKey);
     await prefs.remove(_usernameKey);
     await prefs.remove(_emailKey);
+    await prefs.remove(_phoneKey);
+    await prefs.remove(_bioKey);
   }
 
   // get saved username
@@ -59,6 +84,16 @@ class AuthService {
   static Future<String?> getEmail() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_emailKey);
+  }
+
+  static Future<String?> getPhone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_phoneKey);
+  }
+
+  static Future<String?> getBio() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_bioKey);
   }
 
   AuthService({this.requestExecutor});
@@ -146,20 +181,72 @@ class AuthService {
     }
   }
 
-  Future<http.Response> _post(Uri uri, {required Map<String, dynamic> body}) {
+  Future<Map<String, dynamic>> updateProfile({
+    required String username,
+    required String email,
+    String? phone,
+    String? bio,
+  }) async {
+    try {
+      final token = await getAuthToken();
+      if (token == null || token.isEmpty) {
+        return {
+          'success': false,
+          'message': 'Authentication required. Please log in again.',
+        };
+      }
+
+      final response = await _put(
+        Uri.parse('$baseUrl/update-profile'),
+        body: {
+          'username': username.trim(),
+          'email': email.trim(),
+          'phone': phone?.trim(),
+          'bio': bio?.trim(),
+        },
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      final result = _handleResponse(response);
+      if (result['success']) {
+        await saveUsername(username);
+        await saveEmail(email);
+        if (phone != null) await savePhone(phone);
+        if (bio != null) await saveBio(bio);
+      }
+      return result;
+    } catch (_) {
+      return {
+        'success': false,
+        'message': 'Something went wrong. Please try again.',
+      };
+    }
+  }
+
+  Future<http.Response> _post(
+    Uri uri, {
+    required Map<String, dynamic> body,
+    Map<String, String>? headers,
+  }) {
+    final combinedHeaders = {'Content-Type': 'application/json', ...?headers};
     if (requestExecutor != null) {
       return requestExecutor!(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: combinedHeaders,
         body: jsonEncode(body),
       );
     }
 
-    return http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    return http.post(uri, headers: combinedHeaders, body: jsonEncode(body));
+  }
+
+  Future<http.Response> _put(
+    Uri uri, {
+    required Map<String, dynamic> body,
+    Map<String, String>? headers,
+  }) {
+    final combinedHeaders = {'Content-Type': 'application/json', ...?headers};
+    return http.put(uri, headers: combinedHeaders, body: jsonEncode(body));
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {

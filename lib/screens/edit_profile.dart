@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:quiz_app/services/auth_service.dart';
 import 'package:quiz_app/utils/color.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -16,17 +20,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _bioController;
 
-  String? _imageUrl; // replace with File/XFile if using image_picker
+  String? _imagePath;
+  XFile? _pickedImage;
   bool _isSaving = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // TODO: Prefill with actual current user data
-    _nameController = TextEditingController(text: 'Jane Doe');
-    _emailController = TextEditingController(text: 'jane.doe@example.com');
-    _phoneController = TextEditingController(text: '+1 234 567 8900');
-    _bioController = TextEditingController(text: '');
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+    _bioController = TextEditingController();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await AuthService.getUsername();
+    final email = await AuthService.getEmail();
+    final phone = await AuthService.getPhone();
+    final bio = await AuthService.getBio();
+    final imagePath = await AuthService.getProfileImagePath();
+
+    if (mounted) {
+      setState(() {
+        _nameController.text = name ?? '';
+        _emailController.text = email ?? '';
+        _phoneController.text = phone ?? '';
+        _bioController.text = bio ?? '';
+        _imagePath = imagePath;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -38,10 +63,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _pickImage() {
-    // TODO: Integrate image_picker package here
-    // final picker = ImagePicker();
-    // final picked = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (picked == null) return;
+
+    if (mounted) {
+      setState(() {
+        _pickedImage = picked;
+        _imagePath = picked.path;
+      });
+    }
   }
 
   Future<void> _saveProfile() async {
@@ -49,24 +83,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() => _isSaving = true);
 
-    // TODO: Replace with actual save/update API call
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() => _isSaving = false);
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile updated successfully')),
+    final result = await AuthService().updateProfile(
+      username: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      bio: _bioController.text.trim(),
     );
-    Navigator.pop(context);
+
+    if (result['success'] && _imagePath != null) {
+      await AuthService.saveProfileImagePath(_imagePath!);
+    }
+
+    if (mounted) {
+      setState(() => _isSaving = false);
+
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully')),
+        );
+        Navigator.pop(
+          context,
+          true,
+        ); // Return true to indicate profile was updated
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Failed to update profile'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text('Edit Profile', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -78,17 +137,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             children: [
-              Center(child: _AvatarPicker(imageUrl: _imageUrl, onTap: _pickImage)),
+              Center(
+                child: _AvatarPicker(imagePath: _imagePath, onTap: _pickImage),
+              ),
               const SizedBox(height: 28),
-              _FieldLabel('Full Name'),
+              const _FieldLabel('Full Name'),
               _RoundedField(
                 controller: _nameController,
                 hint: 'Enter your full name',
                 icon: Icons.person_outline,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Name is required' : null,
               ),
               const SizedBox(height: 18),
-              _FieldLabel('Email'),
+              const _FieldLabel('Email'),
               _RoundedField(
                 controller: _emailController,
                 hint: 'Enter your email',
@@ -102,7 +164,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
               const SizedBox(height: 18),
-              _FieldLabel('Phone Number'),
+              const _FieldLabel('Phone Number'),
               _RoundedField(
                 controller: _phoneController,
                 hint: 'Enter your phone number',
@@ -110,7 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 18),
-              _FieldLabel('Bio'),
+              const _FieldLabel('Bio'),
               _RoundedField(
                 controller: _bioController,
                 hint: 'Tell us a bit about yourself',
@@ -141,7 +203,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         )
                       : const Text(
                           'Save Changes',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                 ),
               ),
@@ -155,10 +220,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 }
 
 class _AvatarPicker extends StatelessWidget {
-  final String? imageUrl;
+  final String? imagePath;
   final VoidCallback onTap;
 
-  const _AvatarPicker({required this.imageUrl, required this.onTap});
+  const _AvatarPicker({required this.imagePath, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -167,8 +232,10 @@ class _AvatarPicker extends StatelessWidget {
         CircleAvatar(
           radius: 55,
           backgroundColor: Colors.grey.shade300,
-          backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
-          child: imageUrl == null
+          backgroundImage: imagePath != null
+              ? FileImage(File(imagePath!))
+              : null,
+          child: imagePath == null
               ? const Icon(Icons.person, size: 55, color: Colors.white)
               : null,
         ),
@@ -180,11 +247,15 @@ class _AvatarPicker extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                color: MyColors.secondaryColor,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
-              child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+              child: const Icon(
+                Icons.camera_alt,
+                size: 16,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -203,7 +274,11 @@ class _FieldLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8, left: 4),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
       ),
     );
   }
@@ -238,12 +313,17 @@ class _RoundedField extends StatelessWidget {
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
         prefixIcon: Padding(
-          padding: EdgeInsets.only(bottom: maxLines > 1 ? (maxLines - 1) * 20.0 : 0),
+          padding: EdgeInsets.only(
+            bottom: maxLines > 1 ? (maxLines - 1) * 20.0 : 0,
+          ),
           child: Icon(icon, color: Colors.grey.shade500, size: 20),
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -254,7 +334,7 @@ class _RoundedField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.4),
+          borderSide: BorderSide(color: MyColors.secondaryColor, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
