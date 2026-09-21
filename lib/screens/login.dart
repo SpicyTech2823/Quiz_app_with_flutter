@@ -11,27 +11,27 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginScreen> {
+  // Controllers for the email and password input fields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
-
+  // Dispose of the controllers when the widget is disposed to free up resources
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-
+  // Method to handle the login process
   Future<void> _login() async {
     if (_emailController.text.trim().isEmpty ||
         _passwordController.text.isEmpty) {
       _showMessage('Please enter your email and password');
       return;
     }
-
     setState(() => _isLoading = true);
-
+    // Call the login method from AuthService and await the result
     final result = await _authService.login(
       email: _emailController.text,
       password: _passwordController.text,

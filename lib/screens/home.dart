@@ -70,6 +70,7 @@ class _HomeState extends State<Home> {
                     'Welcome back',
                     style: TextStyle(color: Colors.white54, fontSize: 16),
                   ),
+                  // Display the username from the FutureBuilder
                   FutureBuilder<String?>(
                     future: _usernameFuture,
                     builder: (context, snapshot) {
@@ -164,7 +165,7 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
+// MainScreen widget that contains the bottom navigation bar and manages the state of the selected screen
 class MainScreen extends StatefulWidget {
   final String username;
   const MainScreen({super.key, this.username = 'User'});
@@ -175,6 +176,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  // Create a GlobalKey for the Home widget to access its state
   final GlobalKey<_HomeState> _homeKey = GlobalKey<_HomeState>();
 
   @override

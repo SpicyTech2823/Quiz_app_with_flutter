@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/utils/color.dart';
-import 'package:quiz_app/screens/home.dart';
-
 import 'login.dart';
 
 class Onboard extends StatefulWidget {

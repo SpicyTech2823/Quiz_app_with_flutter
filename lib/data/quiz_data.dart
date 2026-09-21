@@ -1,24 +1,15 @@
-import 'package:flutter/material.dart' hide Category;
+import 'package:flutter/material.dart';
 import '../models/quiz_question.dart';
 import '../models/category.dart';
 
-
 final List<Category> categories = [
-    Category(
-      id: 'science',
-      name: 'Science',
-      icon: Icons.science_outlined,
-    ),
-    Category(
-      id: 'history',
-      name: 'History',
-      icon: Icons.account_balance_outlined,
-    ),
-    Category(
-      id: 'geography',
-      name: 'Geography',
-      icon: Icons.public_outlined,
-    ),
+  Category(id: 'science', name: 'Science', icon: Icons.science_outlined),
+  Category(
+    id: 'history',
+    name: 'History',
+    icon: Icons.account_balance_outlined,
+  ),
+  Category(id: 'geography', name: 'Geography', icon: Icons.public_outlined),
 ];
 List<Question> questions = [
   Question(
@@ -48,19 +39,29 @@ List<Question> questions = [
   Question(
     categoryId: 'history',
     question: 'Who was the first President of the United States?',
-    answers: ['George Washington', 'Thomas Jefferson', 'Abraham Lincoln', 'John Adams'],
+    answers: [
+      'George Washington',
+      'Thomas Jefferson',
+      'Abraham Lincoln',
+      'John Adams',
+    ],
     correctAnswer: 0,
   ),
   Question(
     categoryId: 'history',
     question: 'Who wrote the Declaration of Independence?',
-    answers: ['Thomas Jefferson', 'Benjamin Franklin', 'John Adams', 'James Madison'],
+    answers: [
+      'Thomas Jefferson',
+      'Benjamin Franklin',
+      'John Adams',
+      'James Madison',
+    ],
     correctAnswer: 0,
   ),
   Question(
     categoryId: 'history',
     question: 'Where did the Industrial Revolution begin?',
-    answers: ['France','Germany','England', 'United States'],
+    answers: ['France', 'Germany', 'England', 'United States'],
     correctAnswer: 2,
   ),
   Question(
@@ -78,7 +79,12 @@ List<Question> questions = [
   Question(
     categoryId: 'geography',
     question: 'What is the largest ocean on Earth?',
-    answers: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean', 'Pacific Ocean'],
+    answers: [
+      'Atlantic Ocean',
+      'Indian Ocean',
+      'Arctic Ocean',
+      'Pacific Ocean',
+    ],
     correctAnswer: 3,
   ),
 ];
